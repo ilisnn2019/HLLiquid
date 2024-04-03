@@ -1,15 +1,21 @@
 ﻿using UnityEngine;
 
-// [ExecuteInEditMode]
+[ExecuteInEditMode]
 public class LiquidController : MonoBehaviour {
 
     public GameObject bottle;
-    public GameObject plane;
+    public GameObject waterSurf;
     public Material liquid;
     public Material topLiquidSurface;
+
+    public float BottleHeight;
+    public float BottleWidth;
+
+    public float THRESHOLD = 1.1f;
+
     [Space]
     public Vector3 offset;
-    public float bottleHeight;
+    public float liquidHeight;
     [Space]
     public float recoveryTime = 10;
     public float facingScale = 20;
@@ -38,13 +44,13 @@ public class LiquidController : MonoBehaviour {
 
     void Update (){
         updatePlaneTransform();
-        updateShaderProperties();
+        
     }
 
     void initMovement(){
         facing = Vector3.zero;
-        normal = plane.transform.TransformVector(new Vector3(0,0,-1));
-        pos = plane.transform.position;
+        normal = waterSurf.transform.TransformVector(new Vector3(0,0,-1));
+        pos = waterSurf.transform.position;
         lastPos = transform.position;
         velocity = (lastPos - transform.position) / Time.deltaTime;
         velocity = Vector3.ClampMagnitude(velocity, 1f);
@@ -54,27 +60,35 @@ public class LiquidController : MonoBehaviour {
     }
 
     void updatePlaneTransform(){
-        //plane position
-        Vector3 planePos = bottle.transform.position + offset;
+        //waterSurf position
+        Vector3 surfacePos = bottle.transform.position + offset;
 
-        Vector3 a = bottle.transform.position;
-        Vector3 b = bottle.transform.position + transform.TransformDirection(Vector3.up) * bottleHeight;
+        Vector3 bottlebottom = bottle.transform.position;
+        Vector3 bottletop = bottle.transform.position + transform.TransformDirection(Vector3.up) * liquidHeight;
 
         float dist = offset.y;
-        if(b.y < a.y){
-            a = b;
-            b = bottle.transform.position;
+        if(bottletop.y + THRESHOLD < bottlebottom.y){
+            bottlebottom = bottletop;
+            bottletop = bottle.transform.position;
         }
 
-        Vector3 heading = b - a;
+        Vector3 heading = bottletop - bottlebottom;
         float distance = heading.magnitude;
         Vector3 direction = heading / distance;
-        
-        planePos = a + direction * dist;
-        plane.transform.position = planePos;
 
-        //plane rotation
-        
+        Vector3 orthogonal = Vector3.Cross(-bottle.transform.forward, heading).normalized;
+
+        surfacePos = bottlebottom + direction * dist; //calculate surface position
+        if(bottle.transform.rotation.z>=-90 && bottle.transform.rotation.z <=90)
+            surfacePos += ((offset.y / BottleHeight) / 2 - .5f ) * BottleWidth * orthogonal;
+        else
+            surfacePos += -((offset.y / BottleHeight) / 2 - .5f) * BottleWidth * -orthogonal;
+
+        Debug.Log(surfacePos);
+        waterSurf.transform.position = surfacePos; //set liquid surface position
+
+        //waterSurf rotation
+        //water save
         if(velocity.magnitude == 0){
             moveElapsedTime = 0;
             stopElapsedTime += Time.deltaTime;
@@ -85,7 +99,7 @@ public class LiquidController : MonoBehaviour {
             stopElapsedTime = 0;
             moveElapsedTime += Time.deltaTime;
             facing = facingScale * velocity * moveElapsedTime * lastVelocity.magnitude;
-            lastVelocity = velocity * Mathf.Clamp(moveElapsedTime * velocitySpeed, .1f, 1.5f);
+            lastVelocity = velocity * Mathf.Clamp(moveElapsedTime * velocitySpeed, .1f, .51f);
             angularVelocity = Vector3.zero;
             lastAngularVelocity = Vector3.zero;
         }
@@ -99,7 +113,7 @@ public class LiquidController : MonoBehaviour {
         }else{
             stopAngularElapsedTime = 0;
             moveAngularElapsedTime += Time.deltaTime;
-            lastAngularVelocity = angularVelocity * Mathf.Clamp(moveAngularElapsedTime * velocitySpeed, .1f, 1.5f);
+            lastAngularVelocity = angularVelocity * Mathf.Clamp(moveAngularElapsedTime * velocitySpeed, .1f, .51f);
         }
 
         if(lastVelocity.magnitude > 0 ){
@@ -121,21 +135,22 @@ public class LiquidController : MonoBehaviour {
 
 
         velocity = (lastPos - transform.position) / Time.deltaTime;
-        velocity = Vector3.ClampMagnitude(velocity, 1f);
+        velocity = Vector3.ClampMagnitude(velocity, 0.51f);
 
         angularVelocity = (lastRot - transform.eulerAngles) / Time.deltaTime;
-        angularVelocity = Vector3.ClampMagnitude(angularVelocity, 1f);
+        angularVelocity = Vector3.ClampMagnitude(angularVelocity, 0.51f);
 
         lastPos = transform.position;
         lastRot = transform.eulerAngles;
 
-        plane.transform.LookAt(plane.transform.position - Vector3.up + facing);
+        waterSurf.transform.LookAt(waterSurf.transform.position - Vector3.up + facing);
 
+        updateShaderProperties();
     }
 
     void updateShaderProperties(){
-        pos = plane.transform.position;
-        normal = -plane.transform.forward;
+        pos = waterSurf.transform.position;
+        normal = -waterSurf.transform.forward;
 
 
         liquid.SetVector("_PlanePosition", pos);
@@ -148,10 +163,10 @@ public class LiquidController : MonoBehaviour {
 
     void OnDrawGizmos() {
         Gizmos.color = Color.red;
-        Vector3 topD = transform.TransformDirection(Vector3.up) * bottleHeight;
+        Vector3 topD = transform.TransformDirection(Vector3.up) * liquidHeight;
         Gizmos.DrawRay(transform.position, topD);
-        // Gizmos.color = Color.yellow;
-        // Vector3 liquidLevel = -facing * bottleHeight;
-        // Gizmos.DrawRay(plane.transform.position, liquidLevel);
+        //Gizmos.color = Color.yellow;
+        //Vector3 liquidLevel = -facing * liquidHeight;
+        //Gizmos.DrawRay(waterSurf.transform.position, liquidLevel);
     }
 }

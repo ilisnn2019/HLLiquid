@@ -2,20 +2,24 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!21 &2100000
 Material:
-  serializedVersion: 6
+  serializedVersion: 8
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: TNTC_LiquidInBottle
   m_Shader: {fileID: 4800000, guid: 388e755412c23426cae14ccb7581b537, type: 3}
-  m_ShaderKeywords: 
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: 2000
   stringTagMap: {}
   disabledShaderPasses: []
+  m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -31,6 +35,7 @@ Material:
         m_Texture: {fileID: 2800000, guid: f56ab2be881764e329c28e50f10ef9ba, type: 3}
         m_Scale: {x: 10, y: 10}
         m_Offset: {x: 0, y: 0}
+    m_Ints: []
     m_Floats:
     - _BumpStrenght: -0.95
     - _BumpStrenghtInner: 0.15
@@ -48,6 +53,7 @@ Material:
     - _Color: {r: 0.23215558, g: 0.3259555, b: 0.3490566, a: 0.27450982}
     - _CrossColor: {r: 0.23529412, g: 0.32941177, b: 0.3529412, a: 0.27450982}
     - _PlaneNormal: {r: -0, g: 1.0000001, b: 0.00000011920929, a: 0}
-    - _PlanePosition: {r: -1.2388556, g: -0.22103924, b: -0.31659323, a: 0}
+    - _PlanePosition: {r: -0.17710862, g: 1.7999868, b: -1.2443941, a: 0}
     - _RimColor: {r: 0.38679248, g: 0.38679248, b: 0.38679248, a: 1}
     - _TopColor: {r: 0.23137255, g: 0.3254902, b: 0.34901962, a: 0.27450982}
+  m_BuildTextureStacks: []
