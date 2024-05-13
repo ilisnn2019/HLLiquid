@@ -44,7 +44,7 @@ public class LiquidController : MonoBehaviour {
 
     void Update (){
         updatePlaneTransform();
-        
+
     }
 
     void initMovement(){
@@ -63,14 +63,24 @@ public class LiquidController : MonoBehaviour {
         //waterSurf position
         Vector3 surfacePos = bottle.transform.position + offset;
 
+        float dist = offset.y;
+
         Vector3 bottlebottom = bottle.transform.position;
         Vector3 bottletop = bottle.transform.position + transform.TransformDirection(Vector3.up) * liquidHeight;
 
-        float dist = offset.y;
-        if(bottletop.y + THRESHOLD < bottlebottom.y){
+        //float ratio = Mathf.Clamp( Mathf.Abs(bottle.transform.eulerAngles.z) / 180,dist,BottleHeight - dist*1.4f );
+
+        
+        float ratio = transform.localEulerAngles.z <= 180? transform.localEulerAngles.z%180 / 180: (360 - transform.localEulerAngles.z )/ 180;
+
+        Debug.Log(ratio);
+
+        /*
+        if (bottletop.y + THRESHOLD < bottlebottom.y){
             bottlebottom = bottletop;
             bottletop = bottle.transform.position;
         }
+        */
 
         Vector3 heading = bottletop - bottlebottom;
         float distance = heading.magnitude;
@@ -78,17 +88,15 @@ public class LiquidController : MonoBehaviour {
 
         Vector3 orthogonal = Vector3.Cross(-bottle.transform.forward, heading).normalized;
 
-        surfacePos = bottlebottom + direction * dist; //calculate surface position
-        if(bottle.transform.rotation.z>=-90 && bottle.transform.rotation.z <=90)
-            surfacePos += ((offset.y / BottleHeight) / 2 - .5f ) * BottleWidth * orthogonal;
-        else
-            surfacePos += -((offset.y / BottleHeight) / 2 - .5f) * BottleWidth * -orthogonal;
+        //surfacePos = bottlebottom + direction * dist;
+        surfacePos = bottlebottom + direction * dist + (BottleHeight - dist * 1.5f) * ratio * direction; //calculate surface position
 
-        Debug.Log(surfacePos);
+        surfacePos += ((offset.y / BottleHeight) / 2 - .5f) * BottleWidth * orthogonal;
+
         waterSurf.transform.position = surfacePos; //set liquid surface position
 
         //waterSurf rotation
-        //water save
+        //water wave
         if(velocity.magnitude == 0){
             moveElapsedTime = 0;
             stopElapsedTime += Time.deltaTime;
